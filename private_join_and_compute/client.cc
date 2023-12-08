@@ -18,6 +18,9 @@
 #include <ostream>
 #include <string>
 #include <utility>
+#include<chrono>
+using namespace std;
+using namespace chrono;
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
@@ -115,6 +118,8 @@ int ExecuteProtocol() {
       << "Client: Starting the protocol." << std::endl
       << "Client: Waiting for response and encrypted set from the server..."
       << std::endl;
+  typedef std::chrono::high_resolution_clock Clock;
+  auto t1 = Clock::now();//计时开始
   auto start_protocol_status =
       client->StartProtocol(&invoke_server_handle_message_sink);
   if (!start_protocol_status.ok()) {
@@ -129,8 +134,7 @@ int ExecuteProtocol() {
   std::cout
       << "Client: Received encrypted set from the server, double encrypting..."
       << std::endl;
-  std::cout << "Client: Sending double encrypted server data and "
-               "single-encrypted client data to the server."
+  std::cout << "Client: Sending double encrypted server data ..."
             << std::endl
             << "Client: Waiting for encrypted intersection sum..." << std::endl;
   auto client_round_one_status =
@@ -142,10 +146,9 @@ int ExecuteProtocol() {
   }
 
   // Execute ServerRoundTwo.
-  std::cout << "Client: Sending double encrypted server data and "
-               "single-encrypted client data to the server."
+  std::cout << "Client: Already Sent double encrypted server data ..."
             << std::endl
-            << "Client: Waiting for encrypted intersection sum..." << std::endl;
+            << "Client: Still Waiting for encrypted intersection sum..." << std::endl;
   ServerMessage server_round_two =
       invoke_server_handle_message_sink.last_server_response();
 
@@ -153,6 +156,8 @@ int ExecuteProtocol() {
   std::cout << "Client: Received response from the server. Decrypting the "
                "intersection-sum."
             << std::endl;
+  auto t2 = Clock::now();//计时结束
+  std::cout <<std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()<< '\n';
   auto intersection_size_and_sum_status =
       client->Handle(server_round_two, &invoke_server_handle_message_sink);
   if (!intersection_size_and_sum_status.ok()) {

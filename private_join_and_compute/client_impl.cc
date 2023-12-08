@@ -51,6 +51,10 @@ PrivateIntersectionSumProtocolClientImpl::ReEncryptSet(
   BigNum pk = p_ * q_;
   PrivateIntersectionSumClientMessage::ClientRoundOne result;
   *result.mutable_public_key() = pk.ToBytes();
+  StatusOr<BigNum> value = private_paillier_->Encrypt(values_[0]);
+  if (!value.ok()) {
+    return value.status();
+  }
   for (size_t i = 0; i < elements_.size(); i++) {
     EncryptedElement* element = result.mutable_encrypted_set()->add_elements();
     StatusOr<std::string> encrypted = ec_cipher_->Encrypt(elements_[i]);
@@ -58,10 +62,10 @@ PrivateIntersectionSumProtocolClientImpl::ReEncryptSet(
       return encrypted.status();
     }
     *element->mutable_element() = encrypted.value();
-    StatusOr<BigNum> value = private_paillier_->Encrypt(values_[i]);
-    if (!value.ok()) {
-      return value.status();
-    }
+    //StatusOr<BigNum> value = private_paillier_->Encrypt(values_[i]);
+    // if (!value.ok()) {
+    //   return value.status();
+    // }
     *element->mutable_associated_data() = value.value().ToBytes();
   }
 

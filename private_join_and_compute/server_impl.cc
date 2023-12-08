@@ -114,10 +114,10 @@ PrivateIntersectionSumProtocolServerImpl::ComputeIntersection(
     return encrypted_zero.status();
   }
   BigNum sum = encrypted_zero.value();
-  for (const EncryptedElement& element : intersection) {
-    sum =
-        public_paillier.Add(sum, ctx_->CreateBigNum(element.associated_data()));
-  }
+  // for (const EncryptedElement& element : intersection) {
+  //   sum =
+  //       public_paillier.Add(sum, ctx_->CreateBigNum(element.associated_data()));
+  // }
 
   *result.mutable_encrypted_sum() = sum.ToBytes();
   result.set_intersection_size(intersection.size());
